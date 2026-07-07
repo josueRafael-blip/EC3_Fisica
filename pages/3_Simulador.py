@@ -1,5 +1,4 @@
 import streamlit as st
-
 from module.torricelli import *
 
 st.title("🧪 Simulador de Torricelli")
@@ -24,15 +23,11 @@ diametro = diametro / 1000
 if st.button("Calcular"):
 
     v = velocidad(altura)
-
     q = caudal(altura, diametro)
-
     p = presion(altura)
 
-    c1,c2,c3 = st.columns(3)
+    col1, col2, col3 = st.columns(3)
 
-    c1.metric("🚀 Velocidad",f"{v:.3f} m/s")
-
-    c2.metric("🌊 Caudal",f"{q:.8f} m³/s")
-
-    c3.metric("⚙ Presión",f"{p:.2f} Pa")
+    col1.metric("🚀 Velocidad", f"{v:.3f} m/s")
+    col2.metric("🌊 Caudal", f"{q:.8f} m³/s")
+    col3.metric("⚙️ Presión", f"{p:.2f} Pa")
