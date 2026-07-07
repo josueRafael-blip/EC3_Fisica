@@ -26,6 +26,6 @@ Esta aplicación permite:
 ✅ Aplicar el principio en un caso práctico
 """)
 
-st.image("assets/bidon.png", width=450)
+# st.image("assets/bidon.png", width=450)
 
 st.success("Seleccione una sección desde el menú lateral.")
