@@ -1,6 +1,7 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 from module.dinamica import simular_vaciado
+from module.visual import dibujar_bidon
 
 st.title("📉 Simulación dinámica del vaciado")
 
