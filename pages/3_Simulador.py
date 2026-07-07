@@ -1,6 +1,6 @@
 import streamlit as st
 
-from modules.torricelli import *
+from module.torricelli import *
 
 st.title("🧪 Simulador de Torricelli")
 
