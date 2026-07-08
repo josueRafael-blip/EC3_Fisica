@@ -1,121 +1,121 @@
 import streamlit as st
+import math
 import matplotlib.pyplot as plt
 from module.torricelli import *
 
-# 1. Configuración de página con diseño expandido
-st.set_page_config(
-    page_title="Simulador de Torricelli", 
-    page_icon="🧪", 
-    layout="wide"
-)
-
-# Estilo CSS personalizado para mejorar las tarjetas de métricas
-st.markdown("""
-    <style>
-    [data-testid="stMetric"] {
-        background-color: rgba(28, 131, 225, 0.1);
-        padding: 15px;
-        border-radius: 10px;
-        border: 1px solid rgba(28, 131, 225, 0.2);
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- BARRA LATERAL (CONFIGURACIÓN) ---
-with st.sidebar:
-    st.header("⚙️ Parámetros de Control")
-    st.write("Modifica las variables para ver los cambios en tiempo real.")
-    
-    altura_cm = st.slider("Altura del agua sobre el orificio (cm)", 1, 100, 30)
-    diametro_mm = st.slider("Diámetro del orificio (mm)", 1, 20, 4)
-    altura_suelo_m = st.slider("Altura del orificio al suelo (m)", 0.10, 2.00, 1.00)
-    
-    st.markdown("---")
-    st.caption("Desarrollado para la simulación física del Principio de Torricelli.")
-
-# --- CUERPO PRINCIPAL ---
 st.title("🧪 Simulador Visual de Torricelli")
-st.markdown("""
-En esta sección puedes simular el comportamiento de un fluido saliendo por un orificio lateral. 
-El sistema calcula automáticamente la velocidad, presión, caudal y el alcance horizontal del chorro.
+
+st.write("""
+En esta sección puedes cambiar los datos y ver automáticamente los resultados y el desarrollo de las operaciones.
 """)
 
-# Cálculos matemáticos
-altura_m = altura_cm / 100
-diametro_m = diametro_mm / 1000
+st.sidebar.subheader("⚙️ Parámetros de Control")
 
-v = velocidad(altura_m)
-q = caudal(altura_m, diametro_m)
-p = presion(altura_m)
-t = tiempo_caida(altura_suelo_m)
-x = alcance_horizontal(altura_m, altura_suelo_m)
-q_litros = litros_por_segundo(q)
+altura_cm = st.sidebar.slider("Altura del agua sobre el orificio (cm)", 1, 100, 30)
+diametro_mm = st.sidebar.slider("Diámetro del orificio (mm)", 1, 20, 4)
+altura_suelo_m = st.sidebar.slider("Altura del orificio al suelo (m)", 0.10, 2.00, 1.00)
 
-# División en dos grandes columnas independientes (Resultados vs Gráfico)
-col_izq, col_der = st.columns([1, 1.2], gap="large")
+# Conversión de unidades
+h = altura_cm / 100
+d = diametro_mm / 1000
+r = d / 2
+g = 9.81
+rho = 1000
 
-with col_izq:
+# Cálculos
+v = math.sqrt(2 * g * h)
+p = rho * g * h
+area = math.pi * r**2
+q_m3 = area * v
+q_l = q_m3 * 1000
+t = math.sqrt((2 * altura_suelo_m) / g)
+x = v * t
+
+col1, col2 = st.columns([1, 1])
+
+with col1:
     st.subheader("📌 Resultados del Sistema")
-    
-    # Grid de métricas en 2x2
+
     c1, c2 = st.columns(2)
-    c1.metric(label="🚀 Velocidad de Salida", value=f"{v:.3f} m/s")
-    c2.metric(label="💥 Presión Hidrostática", value=f"{p:.1f} Pa")
-    
-    st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True) # Espaciador
-    
+    c1.metric("🚀 Velocidad de salida", f"{v:.3f} m/s")
+    c2.metric("💥 Presión hidrostática", f"{p:.1f} Pa")
+
     c3, c4 = st.columns(2)
-    c3.metric(label="🌊 Caudal Volumétrico", value=f"{q_litros:.4f} L/s")
-    c4.metric(label="📏 Alcance Horizontal", value=f"{x:.3f} m")
-    
-    st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-    
-    # Métrica destacada individual
-    st.metric(label="⏱️ Tiempo de Caída del Fluido", value=f"{t:.3f} s")
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.info("💡 **Dinámica:** Mientras mayor sea la altura del agua, mayor será la presión hidrostática en el fondo y, por ende, la velocidad y el alcance del chorro.", icon="ℹ️")
+    c3.metric("🌊 Caudal volumétrico", f"{q_l:.4f} L/s")
+    c4.metric("📏 Alcance horizontal", f"{x:.3f} m")
 
-with col_der:
+    st.metric("⏱️ Tiempo de caída del fluido", f"{t:.3f} s")
+
+    st.info("Mientras mayor sea la altura del agua, mayor será la presión, la velocidad y el alcance del chorro.")
+
+with col2:
     st.subheader("💧 Representación del Bidón")
-    
-    # Configuración estética de Matplotlib para que encaje con la interfaz
-    fig, ax = plt.subplots(figsize=(5, 6.5))
-    fig.patch.set_alpha(0.0)  # Fondo transparente de la figura
-    ax.set_facecolor("none")  # Fondo transparente del gráfico
-    
-    # Dibujo de las paredes del Bidón (Color gris oscuro/azul, líneas más estéticas)
-    color_paredes = "#2b3a42"
-    ax.plot([0, 0], [0, 10], color=color_paredes, linewidth=4)
-    ax.plot([4, 4], [0, 10], color=color_paredes, linewidth=4)
-    ax.plot([0, 4], [0, 0], color=color_paredes, linewidth=4)
-    ax.plot([0, 4], [10, 10], color=color_paredes, linewidth=2, linestyle="--") # Tapa abierta
 
-    # Representación del Agua (Celeste moderno con transparencia)
+    fig, ax = plt.subplots(figsize=(4, 6))
+
+    ax.plot([0, 0], [0, 10], linewidth=3)
+    ax.plot([4, 4], [0, 10], linewidth=3)
+    ax.plot([0, 4], [0, 0], linewidth=3)
+    ax.plot([0, 4], [10, 10], linewidth=3)
+
     nivel = altura_cm / 10
-    ax.fill_between([0.1, 3.9], 0, nivel, color="#1c83e1", alpha=0.6, label="Fluido")
+    ax.fill_between([0.1, 3.9], 0, nivel, alpha=0.5)
 
-    # Orificio (Un punto rojo o naranja para que resalte)
-    ax.plot(4, 0.8, "o", markersize=10, color="#ff4b4b", markeredgecolor="white", markeredgewidth=1.5)
+    ax.plot(4, 1, "o", markersize=8)
+    ax.arrow(4, 1, min(x, 3), -1, head_width=0.15, length_includes_head=True)
 
-    # Trayectoria simulación del Chorro (Curva suavizada en vez de flecha recta)
-    import numpy as np
-    # Generamos una pequeña parábola ficticia para simular el chorro de agua de forma realista
-    xs = np.linspace(4, min(4 + x*2, 7.5), 50)
-    ys = 0.8 - 0.1 * (xs - 4)**2
-    # Filtrar para que no caiga más abajo del "suelo" ficticio del gráfico gráfico
-    xs = xs[ys > -1]
-    ys = ys[ys > -1]
-    ax.plot(xs, ys, color="#1c83e1", linewidth=3, linestyle="-")
+    ax.text(0.4, nivel + 0.3, f"Nivel: {altura_cm} cm")
+    ax.text(4.1, 1, "Orificio")
 
-    # Textos anotativos estilizados
-    ax.text(0.3, nivel + 0.3, f"Nivel: {altura_cm} cm", color="#1c83e1", fontsize=11, fontweight='bold')
-    ax.text(4.3, 1.2, "Orificio de salida", color="#ff4b4b", fontsize=10, fontweight='bold')
-
-    # Ajustes finales de ejes
     ax.set_xlim(-0.5, 8)
-    ax.set_ylim(-1.5, 11)
-    ax.axis("off") # Ocultamos el recuadro negro feo por defecto de matplotlib
+    ax.set_ylim(-2, 11)
+    ax.axis("off")
 
-    # Renderizado del gráfico limpio
-    st.pyplot(fig, clear_figure=True)
+    st.pyplot(fig)
+
+st.markdown("---")
+
+st.subheader("🧮 Desarrollo de las operaciones")
+
+st.markdown("### 1. Conversión de unidades")
+
+st.latex(fr"h = {altura_cm}\ cm = {h:.2f}\ m")
+st.latex(fr"d = {diametro_mm}\ mm = {d:.4f}\ m")
+st.latex(fr"r = \frac{{d}}{{2}} = \frac{{{d:.4f}}}{{2}} = {r:.4f}\ m")
+
+st.markdown("### 2. Velocidad de salida")
+
+st.latex(r"v=\sqrt{2gh}")
+st.latex(fr"v=\sqrt{{2({g})({h:.2f})}}")
+st.latex(fr"v={v:.3f}\ m/s")
+
+st.markdown("### 3. Presión hidrostática")
+
+st.latex(r"P=\rho gh")
+st.latex(fr"P=({rho})({g})({h:.2f})")
+st.latex(fr"P={p:.1f}\ Pa")
+
+st.markdown("### 4. Área del orificio")
+
+st.latex(r"A=\pi r^2")
+st.latex(fr"A=\pi({r:.4f})^2")
+st.latex(fr"A={area:.8f}\ m^2")
+
+st.markdown("### 5. Caudal volumétrico")
+
+st.latex(r"Q=A\cdot v")
+st.latex(fr"Q=({area:.8f})({v:.3f})")
+st.latex(fr"Q={q_m3:.8f}\ m^3/s")
+st.latex(fr"Q={q_l:.4f}\ L/s")
+
+st.markdown("### 6. Tiempo de caída")
+
+st.latex(r"t=\sqrt{\frac{2y}{g}}")
+st.latex(fr"t=\sqrt{{\frac{{2({altura_suelo_m:.2f})}}{{{g}}}}}")
+st.latex(fr"t={t:.3f}\ s")
+
+st.markdown("### 7. Alcance horizontal")
+
+st.latex(r"x=v\cdot t")
+st.latex(fr"x=({v:.3f})({t:.3f})")
+st.latex(fr"x={x:.3f}\ m")
