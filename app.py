@@ -8,24 +8,37 @@ st.set_page_config(
 
 st.title("💧 Laboratorio Virtual del Principio de Torricelli")
 
-st.markdown("---")
+st.markdown("""
+### Proyecto de Física
 
-st.write("""
-Bienvenido al Laboratorio Virtual del Principio de Torricelli.
+Esta aplicación complementa el experimento físico realizado con bidones, permitiendo simular y analizar el comportamiento del agua según el Principio de Torricelli.
 
-Esta aplicación permite:
+El sistema permite:
 
-✅ Comprender la teoría de Torricelli
+✅ Comprender la teoría de Torricelli  
+✅ Calcular velocidad, presión y caudal  
+✅ Simular el vaciado dinámico del bidón  
+✅ Observar cómo disminuye la presión con el tiempo  
+✅ Comparar teoría vs experimento  
+✅ Aplicar el modelo a un caso práctico  
 
-✅ Simular el comportamiento del agua
-
-✅ Visualizar el cambio de presión durante el vaciado
-
-✅ Comparar resultados teóricos y experimentales
-
-✅ Aplicar el principio en un caso práctico
+---
 """)
 
-# st.image("assets/bidon.png", width=450)
+col1, col2 = st.columns(2)
 
-st.success("Seleccione una sección desde el menú lateral.")
+with col1:
+    st.subheader("🧪 Parte experimental")
+    st.write("""
+    Se utilizarán bidones físicos para observar cómo cambia la salida del agua según la altura,
+    el diámetro del orificio y el tiempo de vaciado.
+    """)
+
+with col2:
+    st.subheader("💻 Parte digital")
+    st.write("""
+    La aplicación en Streamlit permite visualizar el fenómeno, realizar cálculos automáticos
+    y complementar los resultados obtenidos experimentalmente.
+    """)
+
+st.success("Selecciona una sección desde el menú lateral para iniciar.")
