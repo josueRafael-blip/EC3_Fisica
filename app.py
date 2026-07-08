@@ -6,21 +6,20 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("💧 Laboratorio Virtual del Principio de Torricelli")
+st.title("🏠 Home - Laboratorio Virtual de Torricelli")
 
 st.markdown("""
-### Proyecto de Física
+## 💧 Principio de Torricelli
 
-Esta aplicación complementa el experimento físico realizado con bidones, permitiendo simular y analizar el comportamiento del agua según el Principio de Torricelli.
+Este proyecto combina un **experimento físico con 5 bidones** y una **aplicación web en Streamlit** para analizar cómo sale el agua por un orificio.
 
-El sistema permite:
+La aplicación permite observar cómo cambian:
 
-✅ Comprender la teoría de Torricelli  
-✅ Calcular velocidad, presión y caudal  
-✅ Simular el vaciado dinámico del bidón  
-✅ Observar cómo disminuye la presión con el tiempo  
-✅ Comparar teoría vs experimento  
-✅ Aplicar el modelo a un caso práctico  
+- La altura del agua
+- La presión
+- La velocidad de salida
+- El caudal
+- El tiempo de vaciado
 
 ---
 """)
@@ -28,17 +27,28 @@ El sistema permite:
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("🧪 Parte experimental")
+    st.subheader("🧪 Experimento físico")
     st.write("""
-    Se utilizarán bidones físicos para observar cómo cambia la salida del agua según la altura,
-    el diámetro del orificio y el tiempo de vaciado.
+    Se utilizarán 5 bidones para realizar mediciones reales y comprobar el Principio de Torricelli.
     """)
 
 with col2:
-    st.subheader("💻 Parte digital")
+    st.subheader("💻 Simulador digital")
     st.write("""
-    La aplicación en Streamlit permite visualizar el fenómeno, realizar cálculos automáticos
-    y complementar los resultados obtenidos experimentalmente.
+    El simulador permite calcular y visualizar el comportamiento del agua durante el vaciado.
     """)
 
-st.success("Selecciona una sección desde el menú lateral para iniciar.")
+st.markdown("---")
+
+st.subheader("📌 Secciones de la aplicación")
+
+st.write("""
+1. 📖 Teoría  
+2. 🧪 Simulador  
+3. 📉 Simulación dinámica  
+4. 🏦 Caso práctico  
+5. 📊 Comparación  
+6. ℹ️ Acerca del proyecto  
+""")
+
+st.success("Usa el menú lateral para navegar por las secciones.")
