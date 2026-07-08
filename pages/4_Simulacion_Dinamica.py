@@ -116,53 +116,83 @@ with col_der:
         chorro = int(velocidad_inicial * 60)
         components.html(dibujar_bidon(porcentaje, chorro), height=440)
 
+# ... (Código anterior sin cambios hasta llegar a los gráficos)
+
 st.markdown("---")
 
 # --- SECCIÓN ANALÍTICA (PESTAÑAS Y TABLAS) ---
+# --- CORRECCIÓN DE CONTRASTE PARA TEMA OSCURO ---
+
 col_graficos, col_tabla = st.columns([1.3, 1], gap="large")
 
 with col_graficos:
     st.subheader("📊 Análisis Gráfico del Comportamiento")
     
+    # [IMPORTANTE] Configuramos Matplotlib para que use un estilo oscuro globalmente
+    # Esto asegura que los textos de los ejes, grid y títulos sean CLAROS (blancos/grises).
+    plt.style.use('dark_background')
+    
     # Creamos pestañas para organizar las curvas limpiamente
     tab1, tab2, tab3 = st.tabs(["💧 Altura vs Tiempo", "🚀 Velocidad vs Tiempo", "🌊 Caudal vs Tiempo"])
     
-    # Estilos comunes de gráficos
-    color_linea = "#1c83e1"
-    grid_style = dict(color='gainsboro', linestyle='--', linewidth=0.5)
+    # Definimos colores específicos que resalten sobre el fondo oscuro
+    grid_style = dict(color='#444444', linestyle='--', linewidth=0.5) # Grid gris oscuro sutil
+    text_color = '#FFFFFF' # Blanco para etiquetas y títulos
 
     with tab1:
-        fig1, ax1 = plt.subplots(figsize=(6, 3))
-        fig1.patch.set_alpha(0.0)
-        ax1.plot(df["Tiempo (s)"], df["Altura (m)"], color=color_linea, linewidth=2.5)
-        ax1.set_xlabel("Tiempo (s)", fontsize=9)
-        ax1.set_ylabel("Altura del agua (m)", fontsize=9)
+        # Altura en Azul claro vibrante
+        color_linea_h = "#54C3FE" 
+        fig1, ax1 = plt.subplots(figsize=(6, 3.5)) # Un poco más alto para mejor vista
+        # Hacemos el fondo de la figura transparente para que use el del contenedor de Streamlit
+        fig1.patch.set_alpha(0.0) 
+        
+        ax1.plot(df["Tiempo (s)"], df["Altura (m)"], color=color_linea_h, linewidth=3)
+        
+        # Configuramos los textos específicamente para que sean blancos y legibles
+        ax1.set_xlabel("Tiempo (s)", fontsize=10, color=text_color)
+        ax1.set_ylabel("Altura del agua (m)", fontsize=10, color=text_color)
+        ax1.set_title("Evolución de la Altura", fontsize=12, color=text_color, fontweight='bold')
+        
+        # Aseguramos que los números de los ejes también sean blancos
+        ax1.tick_params(axis='both', colors=text_color, labelsize=9)
+        
         ax1.grid(**grid_style)
         st.pyplot(fig1, clear_figure=True)
 
     with tab2:
-        fig2, ax2 = plt.subplots(figsize=(6, 3))
+        # Velocidad en Rojo vibrante
+        color_linea_v = "#FF4B4B" 
+        fig2, ax2 = plt.subplots(figsize=(6, 3.5))
         fig2.patch.set_alpha(0.0)
-        ax2.plot(df["Tiempo (s)"], df["Velocidad (m/s)"], color="#ff4b4b", linewidth=2.5)
-        ax2.set_xlabel("Tiempo (s)", fontsize=9)
-        ax2.set_ylabel("Velocidad de salida (m/s)", fontsize=9)
+        
+        ax2.plot(df["Tiempo (s)"], df["Velocidad (m/s)"], color=color_linea_v, linewidth=3)
+        
+        ax2.set_xlabel("Tiempo (s)", fontsize=10, color=text_color)
+        ax2.set_ylabel("Velocidad de salida (m/s)", fontsize=10, color=text_color)
+        ax2.set_title("Evolución de la Velocidad", fontsize=12, color=text_color, fontweight='bold')
+        
+        ax2.tick_params(axis='both', colors=text_color, labelsize=9)
         ax2.grid(**grid_style)
         st.pyplot(fig2, clear_figure=True)
 
     with tab3:
-        fig3, ax3 = plt.subplots(figsize=(6, 3))
+        # Caudal en Verde brillante
+        color_linea_q = "#22DD22" 
+        fig3, ax3 = plt.subplots(figsize=(6, 3.5))
         fig3.patch.set_alpha(0.0)
-        ax3.plot(df["Tiempo (s)"], df["Caudal (L/s)"], color="#2ca02c", linewidth=2.5)
-        ax3.set_xlabel("Tiempo (s)", fontsize=9)
-        ax3.set_ylabel("Caudal (L/s)", fontsize=9)
+        
+        ax3.plot(df["Tiempo (s)"], df["Caudal (L/s)"], color=color_linea_q, linewidth=3)
+        
+        ax3.set_xlabel("Tiempo (s)", fontsize=10, color=text_color)
+        ax3.set_ylabel("Caudal (L/s)", fontsize=10, color=text_color)
+        ax3.set_title("Evolución del Caudal", fontsize=12, color=text_color, fontweight='bold')
+        
+        ax3.tick_params(axis='both', colors=text_color, labelsize=9)
         ax3.grid(**grid_style)
         st.pyplot(fig3, clear_figure=True)
 
-with col_tabla:
-    st.subheader("📋 Datos Generados (Muestra)")
-    st.write("Primeras filas de la matriz computacional calculada:")
-    # Desplegamos el dataframe estilizado adaptándose al ancho total
-    st.dataframe(df.head(25), use_container_width=True, height=260)
+    # [Opcional] Restauramos el estilo por defecto al salir de esta sección
+    # para no afectar otros gráficos si los hubiera.
+    plt.style.use('default')
 
-# Conclusión pedagógica
-st.success("💡 **Conclusión del Experimento:** Esta simulación física demuestra que el vaciado no es un proceso lineal. Debido a la disminución de la carga hidráulica (altura), el empuje disminuye gradualmente hasta llegar a cero.", icon="✅")
+# ... (El resto del código, como la tabla y la conclusión, permanece igual)
