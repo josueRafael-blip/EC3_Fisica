@@ -2,6 +2,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from module.dinamica import simular_vaciado
 from module.visual import dibujar_bidon
+import streamlit.components.v1 as components
 
 st.title("📉 Simulación dinámica del vaciado")
 
@@ -76,11 +77,10 @@ with col2:
 st.markdown("### 📋 Datos generados por la simulación")
 st.markdown("## 💧 Vista del Bidón")
 
-st.markdown(
-    dibujar_bidon(
-        porcentaje,
-        chorro
-    ),
+st.components.v1.html(
+    dibujar_bidon(porcentaje, chorro),
+    height=480
+)
     unsafe_allow_html=True
 )
 st.dataframe(df.head(20))
