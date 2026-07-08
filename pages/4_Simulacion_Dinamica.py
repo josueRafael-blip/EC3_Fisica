@@ -95,7 +95,7 @@ with col_der:
         for i in range(0, len(df), salto):
             fila = df.iloc[i]
             porcentaje = (fila["Altura (m)"] / altura_m) * 100
-            chorro = int(fila["Velocidad (m/s)"] * 60)
+            chorro = int(fila["Velocidad (m/s)"] * 80)
 
             # Actualización del componente dinámico HTML
             with espacio_bidon:
