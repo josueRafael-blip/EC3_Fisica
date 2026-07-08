@@ -31,6 +31,11 @@ with col1:
         area_tanque_m2,
         dt
     )
+    ultima_altura = df["Altura (m)"].iloc[0]
+
+    porcentaje = (ultima_altura / altura_m) * 100
+
+    chorro = int(df["Velocidad (m/s)"].iloc[0] * 60)
 
     tiempo_total = df["Tiempo (s)"].iloc[-1]
     velocidad_inicial = df["Velocidad (m/s)"].iloc[0]
