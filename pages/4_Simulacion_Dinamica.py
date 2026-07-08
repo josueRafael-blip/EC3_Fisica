@@ -1,6 +1,7 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 import streamlit.components.v1 as components
+import time
 
 from module.dinamica import simular_vaciado
 from module.visual import dibujar_bidon
@@ -27,20 +28,12 @@ with col1:
     diametro_m = diametro_mm / 1000
     area_tanque_m2 = area_tanque_cm2 / 10000
 
-    df = simular_vaciado(
-        altura_m,
-        diametro_m,
-        area_tanque_m2,
-        dt
-    )
+    df = simular_vaciado(altura_m, diametro_m, area_tanque_m2, dt)
 
     tiempo_total = df["Tiempo (s)"].iloc[-1]
     velocidad_inicial = df["Velocidad (m/s)"].iloc[0]
     caudal_inicial = df["Caudal (L/s)"].iloc[0]
     presion_inicial = df["Presión (Pa)"].iloc[0]
-
-    porcentaje = 100
-    chorro = int(velocidad_inicial * 60)
 
     st.markdown("### 📌 Resultados iniciales")
     st.metric("⏱️ Tiempo total de vaciado", f"{tiempo_total:.2f} s")
@@ -48,16 +41,49 @@ with col1:
     st.metric("🌊 Caudal inicial", f"{caudal_inicial:.4f} L/s")
     st.metric("⚙️ Presión inicial", f"{presion_inicial:.2f} Pa")
 
+    iniciar = st.button("▶️ Iniciar simulación")
+
 
 with col2:
     st.subheader("💧 Vista del bidón")
 
-    components.html(
-        dibujar_bidon(porcentaje, chorro),
-        height=480
-    )
+    espacio_bidon = st.empty()
+    espacio_metricas = st.empty()
 
-    st.subheader("💧 Comportamiento del agua en el tiempo")
+    if iniciar:
+        salto = max(1, len(df) // 80)
+
+        for i in range(0, len(df), salto):
+            fila = df.iloc[i]
+
+            porcentaje = (fila["Altura (m)"] / altura_m) * 100
+            chorro = int(fila["Velocidad (m/s)"] * 60)
+
+            with espacio_bidon:
+                components.html(
+                    dibujar_bidon(porcentaje, chorro),
+                    height=480
+                )
+
+            with espacio_metricas:
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("⏱️ Tiempo", f"{fila['Tiempo (s)']:.1f} s")
+                c2.metric("🚀 Velocidad", f"{fila['Velocidad (m/s)']:.3f} m/s")
+                c3.metric("🌊 Caudal", f"{fila['Caudal (L/s)']:.4f} L/s")
+                c4.metric("⚙️ Presión", f"{fila['Presión (Pa)']:.2f} Pa")
+
+            time.sleep(0.08)
+
+    else:
+        porcentaje = 100
+        chorro = int(velocidad_inicial * 60)
+
+        components.html(
+            dibujar_bidon(porcentaje, chorro),
+            height=480
+        )
+
+    st.subheader("📊 Gráficas del comportamiento")
 
     fig1, ax1 = plt.subplots()
     ax1.plot(df["Tiempo (s)"], df["Altura (m)"])
