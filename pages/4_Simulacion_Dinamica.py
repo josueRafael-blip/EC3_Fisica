@@ -2,7 +2,11 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from module.dinamica import simular_vaciado
 from module.visual import dibujar_bidon
-import streamlit.components.v1 as components
+
+components.html(
+    dibujar_bidon(porcentaje, chorro),
+    height=480
+)
 
 st.title("📉 Simulación dinámica del vaciado")
 
