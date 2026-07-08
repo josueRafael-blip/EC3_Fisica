@@ -1,19 +1,16 @@
 import streamlit as st
 import matplotlib.pyplot as plt
+import streamlit.components.v1 as components
+
 from module.dinamica import simular_vaciado
 from module.visual import dibujar_bidon
 
-components.html(
-    dibujar_bidon(porcentaje, chorro),
-    height=480
-)
 
 st.title("📉 Simulación dinámica del vaciado")
 
 st.write("""
-En esta sección se observa lo que indicó el profesor: 
-mientras el agua sale, la altura disminuye; por lo tanto, también disminuyen la presión,
-la velocidad y el caudal.
+En esta sección se observa cómo el nivel del agua disminuye durante el vaciado.
+Al bajar la altura del agua, también disminuyen la presión, la velocidad y el caudal.
 """)
 
 col1, col2 = st.columns([1, 2])
@@ -36,25 +33,30 @@ with col1:
         area_tanque_m2,
         dt
     )
-    ultima_altura = df["Altura (m)"].iloc[0]
-
-    porcentaje = (ultima_altura / altura_m) * 100
-
-    chorro = int(df["Velocidad (m/s)"].iloc[0] * 60)
 
     tiempo_total = df["Tiempo (s)"].iloc[-1]
     velocidad_inicial = df["Velocidad (m/s)"].iloc[0]
     caudal_inicial = df["Caudal (L/s)"].iloc[0]
     presion_inicial = df["Presión (Pa)"].iloc[0]
 
-    st.markdown("### 📌 Resultados iniciales")
+    porcentaje = 100
+    chorro = int(velocidad_inicial * 60)
 
+    st.markdown("### 📌 Resultados iniciales")
     st.metric("⏱️ Tiempo total de vaciado", f"{tiempo_total:.2f} s")
     st.metric("🚀 Velocidad inicial", f"{velocidad_inicial:.3f} m/s")
     st.metric("🌊 Caudal inicial", f"{caudal_inicial:.4f} L/s")
     st.metric("⚙️ Presión inicial", f"{presion_inicial:.2f} Pa")
 
+
 with col2:
+    st.subheader("💧 Vista del bidón")
+
+    components.html(
+        dibujar_bidon(porcentaje, chorro),
+        height=480
+    )
+
     st.subheader("💧 Comportamiento del agua en el tiempo")
 
     fig1, ax1 = plt.subplots()
@@ -78,15 +80,8 @@ with col2:
     ax3.set_title("Cambio del caudal")
     st.pyplot(fig3)
 
-st.markdown("### 📋 Datos generados por la simulación")
-st.markdown("## 💧 Vista del Bidón")
 
-st.components.v1.html(
-    dibujar_bidon(porcentaje, chorro),
-    height=480
-)
-    unsafe_allow_html=True
-)
+st.markdown("### 📋 Datos generados por la simulación")
 st.dataframe(df.head(20))
 
 st.success("""
