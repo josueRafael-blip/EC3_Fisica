@@ -74,6 +74,15 @@ with col2:
     st.pyplot(fig3)
 
 st.markdown("### 📋 Datos generados por la simulación")
+st.markdown("## 💧 Vista del Bidón")
+
+st.markdown(
+    dibujar_bidon(
+        porcentaje,
+        chorro
+    ),
+    unsafe_allow_html=True
+)
 st.dataframe(df.head(20))
 
 st.success("""
