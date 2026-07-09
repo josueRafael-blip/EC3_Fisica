@@ -1,15 +1,14 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import math
 
-# 1. Configuración de la interfaz en modo ancho
 st.set_page_config(
-    page_title="Analogía Bancaria - Torricelli", 
+    page_title="Caso Práctico Banco", 
     page_icon="🏦", 
     layout="wide"
 )
 
-# Estilo CSS inyectado para mejorar las tarjetas de métricas en modo oscuro
 st.markdown("""
     <style>
     [data-testid="stMetric"] {
@@ -21,126 +20,136 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- BARRA LATERAL (PARÁMETROS DEL BANCO) ---
 with st.sidebar:
     st.header("⚙️ Configuración del Banco")
-    st.write("Ajusta las variables de atención para simular el comportamiento de la cola.")
-    
     clientes_iniciales = st.slider("Clientes iniciales en espera", 10, 500, 100)
     cajeros = st.slider("Número de cajeros disponibles", 1, 10, 3)
-    capacidad_base = st.slider("Capacidad base (clientes/min)", 1, 10, 4)
-    
-    st.markdown("---")
-    st.caption("Nota: La velocidad de atención decrece con la raíz cuadrada de la proporción de clientes restantes (simulando la pérdida de presión).")
+    capacidad_base = st.slider("Capacidad por cajero (clientes/min)", 1, 10, 4)
 
-# --- CUERPO PRINCIPAL ---
-st.title("🏦 Caso Práctico: Analogía con un Banco")
+st.title("🏦 Caso Práctico: Sistema de Atención en un Banco")
 
 st.write("""
-Este apartado utiliza una analogía muy intuitiva para relacionar el **Principio de Torricelli** con un sistema de atención en una sucursal bancaria. 
+Este apartado usa el concepto de flujo para representar un sistema de atención bancaria.
+El objetivo es calcular cuánto tiempo tardan los cajeros en atender a todos los clientes.
 """)
 
-st.info("💡 **Aclaración pedagógica:** Esta comparación no significa que un banco funcione físicamente bajo leyes hidráulicas, sino que nos ayuda a visualizar cómo un flujo dinámico de salida disminuye de manera no lineal conforme se reduce la cantidad disponible dentro de un sistema.", icon="ℹ️")
+st.info("""
+Aclaración: este caso no aplica directamente la ecuación de Torricelli.
+Se usa como analogía de flujo: los clientes entran al sistema y salen cuando son atendidos.
+""")
 
-# --- CÓMPUTO LÓGICO DE LA SIMULACIÓN ---
+# Cálculos principales
+capacidad_total = cajeros * capacidad_base
+tiempo_teorico = clientes_iniciales / capacidad_total
+tiempo_total = math.ceil(tiempo_teorico)
+
 clientes_restantes = clientes_iniciales
-tiempo = 0
 datos = []
 
-while clientes_restantes > 0:
-    proporcion = clientes_restantes / clientes_iniciales
-    
-    # Modelo matemático basado en Torricelli (v = sqrt(2gh)) -> proporcional a sqrt(h)
-    flujo_atencion = cajeros * capacidad_base * (proporcion ** 0.5)
-    clientes_atendidos = min(flujo_atencion, clientes_restantes)
-
+for minuto in range(tiempo_total + 1):
     datos.append({
-        "Tiempo (min)": tiempo,
-        "Clientes restantes": clientes_restantes,
-        "Clientes atendidos por minuto": flujo_atencion
+        "Tiempo (min)": minuto,
+        "Clientes restantes": max(clientes_restantes, 0),
+        "Clientes atendidos por minuto": capacidad_total if clientes_restantes > 0 else 0
     })
 
-    clientes_restantes -= clientes_atendidos
-    tiempo += 1
+    clientes_restantes -= capacidad_total
 
 df_banco = pd.DataFrame(datos)
 
-# --- DISTRIBUCIÓN DE COLUMNAS PRINCIPALES ---
 col_izq, col_der = st.columns([1, 1.3], gap="large")
 
 with col_izq:
-    st.subheader("🔁 Relación de Equivalencias")
-    st.write("¿Cómo se conecta la física de fluidos con el modelo de atención?")
-    
-    # Creamos un contenedor limpio con bordes para mostrar la tabla comparativa
+    st.subheader("🔁 Relación de equivalencias")
+
     with st.container(border=True):
         st.markdown("""
-        | 💧 Componente Hidráulico | 🏦 Equivalencia Bancaria |
+        | 💧 Componente hidráulico | 🏦 Equivalencia bancaria |
         | :--- | :--- |
-        | **El Bidón (Tanque)** | La Entidad Financiera |
-        | **El Agua Almacenada** | Clientes en cola de espera |
-        | **El Orificio de Salida** | Cantidad de Cajeros activos |
-        | **El Caudal ($Q$)** | Clientes atendidos por minuto |
-        | **Volumen Restante ($V$)** | Clientes pendientes en fila |
+        | Bidón | Banco |
+        | Agua almacenada | Clientes en espera |
+        | Orificio de salida | Cajeros activos |
+        | Caudal | Clientes atendidos por minuto |
+        | Volumen restante | Clientes pendientes |
         """)
 
+    st.subheader("🧮 Operaciones realizadas")
+
+    st.latex(r"\text{Capacidad total} = \text{cajeros} \times \text{capacidad por cajero}")
+    st.latex(fr"\text{{Capacidad total}} = {cajeros} \times {capacidad_base} = {capacidad_total}\ clientes/min")
+
+    st.latex(r"\text{Tiempo teórico} = \frac{\text{clientes iniciales}}{\text{capacidad total}}")
+    st.latex(fr"\text{{Tiempo teórico}} = \frac{{{clientes_iniciales}}}{{{capacidad_total}}} = {tiempo_teorico:.2f}\ min")
+
+    st.latex(r"\text{Tiempo final} = \lceil \text{tiempo teórico} \rceil")
+    st.latex(fr"\text{{Tiempo final}} = \lceil {tiempo_teorico:.2f} \rceil = {tiempo_total}\ min")
+
+    st.write("""
+    Se redondea hacia arriba porque no se puede completar la atención en una fracción de minuto dentro de la simulación.
+    """)
+
 with col_der:
-    st.subheader("📊 Simulación del Flujo de Atención")
-    
-    # Fila horizontal de métricas resumidas
-    m1, m2, m3 = st.columns(3)
-    m1.metric("⏱️ Tiempo Total", f"{tiempo} min")
-    m2.metric("👥 Clientes Iniciales", f"{clientes_iniciales}")
-    m3.metric("🏧 Cajeros Activos", f"{cajeros}")
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # --- GRÁFICOS CORRECTAMENTE OPTIMIZADOS PARA MODO OSCURO ---
-    plt.style.use('dark_background')
-    tab1, tab2 = st.tabs(["📉 Clientes en Cola", "⚡ Ritmo de Atención"])
-    
-    grid_style = dict(color='#444444', linestyle='--', linewidth=0.5)
-    text_color = '#FFFFFF'
+    st.subheader("📊 Resultados de la simulación")
+
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("⏱️ Tiempo total", f"{tiempo_total} min")
+    m2.metric("👥 Clientes iniciales", clientes_iniciales)
+    m3.metric("🏧 Cajeros", cajeros)
+    m4.metric("⚡ Capacidad total", f"{capacidad_total} clientes/min")
+
+    plt.style.use("dark_background")
+
+    tab1, tab2 = st.tabs(["📉 Clientes en cola", "⚡ Ritmo de atención"])
+
+    grid_style = dict(color="#444444", linestyle="--", linewidth=0.5)
+    text_color = "#FFFFFF"
 
     with tab1:
         fig1, ax1 = plt.subplots(figsize=(6, 3.2))
-        fig1.patch.set_alpha(0.0) # Transparencia de fondo
-        
+        fig1.patch.set_alpha(0.0)
+
         ax1.plot(df_banco["Tiempo (min)"], df_banco["Clientes restantes"], color="#54C3FE", linewidth=3)
-        ax1.set_title("Clientes Restantes en el Banco", fontsize=11, color=text_color, fontweight='bold')
-        ax1.set_xlabel("Tiempo (min)", fontsize=9, color=text_color)
-        ax1.set_ylabel("Clientes", fontsize=9, color=text_color)
-        ax1.tick_params(axis='both', colors=text_color, labelsize=9)
+        ax1.set_title("Clientes restantes en el banco", color=text_color, fontweight="bold")
+        ax1.set_xlabel("Tiempo (min)", color=text_color)
+        ax1.set_ylabel("Clientes", color=text_color)
+        ax1.tick_params(axis="both", colors=text_color)
         ax1.grid(**grid_style)
-        
+
         st.pyplot(fig1, clear_figure=True)
 
     with tab2:
         fig2, ax2 = plt.subplots(figsize=(6, 3.2))
         fig2.patch.set_alpha(0.0)
-        
+
         ax2.plot(df_banco["Tiempo (min)"], df_banco["Clientes atendidos por minuto"], color="#FF4B4B", linewidth=3)
-        ax2.set_title("Flujo de Atención (Clientes / min)", fontsize=11, color=text_color, fontweight='bold')
-        ax2.set_xlabel("Tiempo (min)", fontsize=9, color=text_color)
-        ax2.set_ylabel("Velocidad (clientes/min)", fontsize=9, color=text_color)
-        ax2.tick_params(axis='both', colors=text_color, labelsize=9)
+        ax2.set_title("Clientes atendidos por minuto", color=text_color, fontweight="bold")
+        ax2.set_xlabel("Tiempo (min)", color=text_color)
+        ax2.set_ylabel("Clientes/min", color=text_color)
+        ax2.tick_params(axis="both", colors=text_color)
         ax2.grid(**grid_style)
-        
+
         st.pyplot(fig2, clear_figure=True)
-        
-    plt.style.use('default') # Restauración de estilo
+
+    plt.style.use("default")
 
 st.markdown("---")
 
-# --- SECCIÓN INFERIOR DE DATOS Y CONCLUSIONES ---
 col_tabla, col_conclusion = st.columns([1, 1.3], gap="large")
 
 with col_tabla:
-    st.subheader("📋 Datos Históricos")
-    st.dataframe(df_banco.head(20), use_container_width=True, height=220)
+    st.subheader("📋 Datos de la simulación")
+    st.dataframe(df_banco, use_container_width=True, height=260)
 
 with col_conclusion:
-    st.subheader("💡 Conclusión Analítica")
-    st.success("""
-    Este caso práctico nos demuestra de forma analógica que, de la misma manera en que el caudal de agua está condicionado por la presión hidrostática reinante, en un proceso de colas y servicios el flujo de salida puede modelarse matemáticamente como una variable transitoria que se auto-ajusta dinámicamente según el inventario restante del sistema.
+    st.subheader("💡 Interpretación")
+
+    st.success(f"""
+    Con {clientes_iniciales} clientes, {cajeros} cajeros y una capacidad de {capacidad_base} clientes por minuto por cajero,
+    el banco puede atender {capacidad_total} clientes por minuto.
+    
+    Por ello, el tiempo teórico de atención es {tiempo_teorico:.2f} minutos y el tiempo total estimado es {tiempo_total} minutos.
+    """)
+
+    st.write("""
+    En este modelo, el ritmo de atención se mantiene constante porque los cajeros conservan la misma capacidad durante todo el proceso.
     """)
