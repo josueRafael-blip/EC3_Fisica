@@ -95,9 +95,7 @@ with col_izq:
         fr"\text{{Tiempo total}}=\frac{{{clientes_iniciales}}}{{{capacidad_total}}}={tiempo_total:.2f}\ \text{{min}}"
     )
 
-    st.latex(
-        fr"{tiempo_total:.2f}\ \text{{min}}={minutos}\ \text{{min}}\ {segundos:.0f}\ \text{{s}}"
-    )
+  
 
 with col_der:
     st.subheader("📊 Resultados de la simulación")
