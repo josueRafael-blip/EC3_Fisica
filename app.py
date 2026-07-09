@@ -100,7 +100,7 @@ with s_col1:
 with s_col2:
     st.markdown('<div class="section-badge">🏦 4. Caso Práctico</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-badge">📊 5. Comparación</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-badge">ℹ️ 6. Acerca del Proyecto</div>', unsafe_allow_html=True)
+    
 
 st.write("")
 st.info("💡 Consejo: Utiliza el menú desplegable de la barra lateral izquierda para navegar por los módulos.")
