@@ -58,6 +58,51 @@ c2.metric("⚙️ Presión inicial", f"{presion_inicial:.1f} Pa")
 c3.metric("🚀 Velocidad inicial", f"{velocidad_inicial:.3f} m/s")
 c4.metric("🌊 Caudal inicial", f"{caudal_inicial:.4f} L/s")
 
+import math
+
+radio_m = diametro_m / 2
+area_orificio_m2 = math.pi * radio_m**2
+volumen_inicial_m3 = area_tanque_m2 * altura_m
+volumen_inicial_l = volumen_inicial_m3 * 1000
+
+st.markdown("---")
+st.subheader("🧮 Desarrollo de las operaciones iniciales")
+
+st.markdown("### 1. Conversión de unidades")
+st.latex(fr"h = {altura_cm}\ cm = {altura_m:.2f}\ m")
+st.latex(fr"d = {diametro_mm}\ mm = {diametro_m:.4f}\ m")
+st.latex(fr"A_{{tanque}} = {area_tanque_cm2}\ cm^2 = {area_tanque_m2:.4f}\ m^2")
+
+st.markdown("### 2. Área del orificio")
+st.latex(r"r=\frac{d}{2}")
+st.latex(fr"r=\frac{{{diametro_m:.4f}}}{{2}}={radio_m:.4f}\ m")
+st.latex(r"A=\pi r^2")
+st.latex(fr"A=\pi({radio_m:.4f})^2={area_orificio_m2:.8f}\ m^2")
+
+st.markdown("### 3. Presión inicial")
+st.latex(r"P=\rho gh")
+st.latex(fr"P=(1000)(9.81)({altura_m:.2f})={presion_inicial:.1f}\ Pa")
+
+st.markdown("### 4. Velocidad inicial")
+st.latex(r"v=\sqrt{2gh}")
+st.latex(fr"v=\sqrt{{2(9.81)({altura_m:.2f})}}={velocidad_inicial:.3f}\ m/s")
+
+st.markdown("### 5. Caudal inicial")
+st.latex(r"Q=A\cdot v")
+st.latex(fr"Q=({area_orificio_m2:.8f})({velocidad_inicial:.3f})")
+st.latex(fr"Q={caudal_inicial/1000:.8f}\ m^3/s")
+st.latex(fr"Q={caudal_inicial:.4f}\ L/s")
+
+st.markdown("### 6. Volumen inicial aproximado")
+st.latex(r"V=A_{tanque}\cdot h")
+st.latex(fr"V=({area_tanque_m2:.4f})({altura_m:.2f})={volumen_inicial_m3:.4f}\ m^3")
+st.latex(fr"V={volumen_inicial_l:.2f}\ L")
+
+st.markdown("### 7. Variación de altura en cada paso")
+st.latex(r"\Delta h=\frac{Q}{A_{tanque}}\cdot \Delta t")
+st.latex(fr"\Delta h=\frac{{{caudal_inicial/1000:.8f}}}{{{area_tanque_m2:.4f}}}\cdot {dt}")
+st.latex(fr"\Delta h={((caudal_inicial/1000)/area_tanque_m2)*dt:.6f}\ m")
+
 st.markdown("---")
 
 st.subheader("📊 Análisis gráfico del comportamiento")
