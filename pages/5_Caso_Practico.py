@@ -1,11 +1,10 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import math
 
 st.set_page_config(
-    page_title="Caso Práctico Banco", 
-    page_icon="🏦", 
+    page_title="Caso Práctico Banco",
+    page_icon="🏦",
     layout="wide"
 )
 
@@ -40,20 +39,31 @@ Se usa como analogía de flujo: los clientes entran al sistema y salen cuando so
 
 # Cálculos principales
 capacidad_total = cajeros * capacidad_base
-tiempo_teorico = clientes_iniciales / capacidad_total
-tiempo_total = math.ceil(tiempo_teorico)
+tiempo_total = clientes_iniciales / capacidad_total
 
+minutos = int(tiempo_total)
+segundos = (tiempo_total - minutos) * 60
+
+# Simulación minuto a minuto
 clientes_restantes = clientes_iniciales
 datos = []
+minuto = 0
 
-for minuto in range(tiempo_total + 1):
+while clientes_restantes > 0:
     datos.append({
         "Tiempo (min)": minuto,
         "Clientes restantes": max(clientes_restantes, 0),
-        "Clientes atendidos por minuto": capacidad_total if clientes_restantes > 0 else 0
+        "Clientes atendidos por minuto": capacidad_total
     })
 
     clientes_restantes -= capacidad_total
+    minuto += 1
+
+datos.append({
+    "Tiempo (min)": round(tiempo_total, 2),
+    "Clientes restantes": 0,
+    "Clientes atendidos por minuto": 0
+})
 
 df_banco = pd.DataFrame(datos)
 
@@ -73,26 +83,33 @@ with col_izq:
         | Volumen restante | Clientes pendientes |
         """)
 
-    st.subheader("🧮 Operaciones realizadas")
+    st.subheader("🧮 Desarrollo de las operaciones")
 
-    st.latex(r"\text{Capacidad total} = \text{cajeros} \times \text{capacidad por cajero}")
-    st.latex(fr"\text{{Capacidad total}} = {cajeros} \times {capacidad_base} = {capacidad_total}\ clientes/min")
+    st.latex(r"\text{Capacidad total}=\text{Cajeros}\times\text{Capacidad por cajero}")
+    st.latex(
+        fr"\text{{Capacidad total}}={cajeros}\times{capacidad_base}={capacidad_total}\ \text{{clientes/min}}"
+    )
 
-    st.latex(r"\text{Tiempo teórico} = \frac{\text{clientes iniciales}}{\text{capacidad total}}")
-    st.latex(fr"\text{{Tiempo teórico}} = \frac{{{clientes_iniciales}}}{{{capacidad_total}}} = {tiempo_teorico:.2f}\ min")
+    st.latex(r"\text{Tiempo total}=\frac{\text{Clientes iniciales}}{\text{Capacidad total}}")
+    st.latex(
+        fr"\text{{Tiempo total}}=\frac{{{clientes_iniciales}}}{{{capacidad_total}}}={tiempo_total:.2f}\ \text{{min}}"
+    )
 
-    st.latex(r"\text{Tiempo final} = \lceil \text{tiempo teórico} \rceil")
-    st.latex(fr"\text{{Tiempo final}} = \lceil {tiempo_teorico:.2f} \rceil = {tiempo_total}\ min")
-
-    st.write("""
-    Se redondea hacia arriba porque no se puede completar la atención en una fracción de minuto dentro de la simulación.
-    """)
+    st.latex(
+        fr"{tiempo_total:.2f}\ \text{{min}}={minutos}\ \text{{min}}\ {segundos:.0f}\ \text{{s}}"
+    )
 
 with col_der:
     st.subheader("📊 Resultados de la simulación")
 
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("⏱️ Tiempo total", f"{tiempo_total} min")
+
+    m1.metric(
+        "⏱️ Tiempo total",
+        f"{tiempo_total:.2f} min",
+        help=f"Aproximadamente {minutos} min {segundos:.0f} s"
+    )
+
     m2.metric("👥 Clientes iniciales", clientes_iniciales)
     m3.metric("🏧 Cajeros", cajeros)
     m4.metric("⚡ Capacidad total", f"{capacidad_total} clientes/min")
@@ -108,7 +125,13 @@ with col_der:
         fig1, ax1 = plt.subplots(figsize=(6, 3.2))
         fig1.patch.set_alpha(0.0)
 
-        ax1.plot(df_banco["Tiempo (min)"], df_banco["Clientes restantes"], color="#54C3FE", linewidth=3)
+        ax1.plot(
+            df_banco["Tiempo (min)"],
+            df_banco["Clientes restantes"],
+            color="#54C3FE",
+            linewidth=3
+        )
+
         ax1.set_title("Clientes restantes en el banco", color=text_color, fontweight="bold")
         ax1.set_xlabel("Tiempo (min)", color=text_color)
         ax1.set_ylabel("Clientes", color=text_color)
@@ -121,7 +144,13 @@ with col_der:
         fig2, ax2 = plt.subplots(figsize=(6, 3.2))
         fig2.patch.set_alpha(0.0)
 
-        ax2.plot(df_banco["Tiempo (min)"], df_banco["Clientes atendidos por minuto"], color="#FF4B4B", linewidth=3)
+        ax2.plot(
+            df_banco["Tiempo (min)"],
+            df_banco["Clientes atendidos por minuto"],
+            color="#FF4B4B",
+            linewidth=3
+        )
+
         ax2.set_title("Clientes atendidos por minuto", color=text_color, fontweight="bold")
         ax2.set_xlabel("Tiempo (min)", color=text_color)
         ax2.set_ylabel("Clientes/min", color=text_color)
@@ -146,8 +175,9 @@ with col_conclusion:
     st.success(f"""
     Con {clientes_iniciales} clientes, {cajeros} cajeros y una capacidad de {capacidad_base} clientes por minuto por cajero,
     el banco puede atender {capacidad_total} clientes por minuto.
-    
-    Por ello, el tiempo teórico de atención es {tiempo_teorico:.2f} minutos y el tiempo total estimado es {tiempo_total} minutos.
+
+    Por ello, el tiempo total de atención es {tiempo_total:.2f} minutos,
+    aproximadamente {minutos} minutos con {segundos:.0f} segundos.
     """)
 
     st.write("""
