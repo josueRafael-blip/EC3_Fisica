@@ -97,7 +97,7 @@ radio = diametro_orificio / 2
 area_orificio = math.pi * radio**2
 caudal = area_orificio * velocidad_teorica
 
-st.header("2. Resultados calculados por el software")
+st.header("2. Resultados calculados ")
 
 m1, m2, m3 = st.columns(3)
 
